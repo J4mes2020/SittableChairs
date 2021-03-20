@@ -1,0 +1,7 @@
+name: SittableChairs
+version: ${project.version}
+main: dev.odionwolf.sittablechairs.SittableChairs
+api-version: 1.16
+authors: [ OdionWolf ]
+description: Allows players to sit on chairs
+website: Odionwolf.dev
