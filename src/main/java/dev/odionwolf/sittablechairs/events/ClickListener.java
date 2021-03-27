@@ -5,22 +5,22 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.vehicle.VehicleExitEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
+import org.spigotmc.event.entity.EntityDismountEvent;
 
 import java.util.ArrayList;
 import java.util.UUID;
 
 public class ClickListener implements Listener {
 
-    ArrayList<UUID> mobID = new ArrayList<>();
-
+    public ArrayList<String> mobID = new ArrayList<>();
     public ClickListener(SittableChairs sittableChairs) {
         Bukkit.getPluginManager().registerEvents(this, sittableChairs);
     }
@@ -69,28 +69,27 @@ public class ClickListener implements Listener {
                 case RED_NETHER_BRICK_STAIRS:
                 case RED_SANDSTONE_STAIRS:
                 case WARPED_STAIRS:
-                    Location location = block.getLocation();
-                    LivingEntity entity = (LivingEntity) world.spawnEntity(location, EntityType.BAT);
+                    double x = block.getX() + 0.5;
+                    double y = block.getY() - 0.7;
+                    double z = block.getZ() + 0.2;
+                    Location location = new Location(world, x,y,z);
+                    location.setYaw(-180);
+                    LivingEntity entity = (LivingEntity) world.spawnEntity(location, EntityType.SHEEP);
                     entity.addPassenger(player);
                     entity.setAI(false);
-                    entity.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 1000000, 100, false, false));
-                    entity.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 1000000, 100, false, false));
+                    entity.setInvulnerable(true);
+                    entity.setInvisible(true);
                     entity.setSilent(true);
-                    mobID.add(entity.getUniqueId());
-                    player.sendMessage("You clicked on" + " " + block.getType());
-                    player.sendMessage(String.valueOf(mobID));
+                    mobID.add(entity.getUniqueId().toString());
             }
         }
     }
 
     @EventHandler
-    public void onDismount(VehicleExitEvent event) { // Doesn't fire
-        Player player = (Player) event.getExited();
-        System.out.println("exited");
-        player.sendMessage("exitied");
-        Vehicle en = event.getVehicle();
-        if (mobID.contains(en.getUniqueId())) {
-            mobID.remove(en.getUniqueId());
+    public void onDismount(EntityDismountEvent event) {// Doesn't fire
+        Entity en = event.getDismounted();
+        if (mobID.contains(en.getUniqueId().toString())) {
+            mobID.remove(en.getUniqueId().toString());
             en.remove();
         }
     }
